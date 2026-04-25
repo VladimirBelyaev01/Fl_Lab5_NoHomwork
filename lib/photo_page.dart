@@ -8,10 +8,18 @@ class PhotoPage extends StatefulWidget {
   const PhotoPage({super.key});
 
   @override
-  State<PhotoPage> createState() => _PhotoPageState();
+  State<PhotoPage> createState() =>
+      _PhotoPageState();
 }
 
 class _PhotoPageState extends State<PhotoPage> {
+  final List<String> _localPhotos = [
+    'assets/images/photo1.jpg',
+    'assets/images/photo2.jpg',
+    'assets/images/photo3.jpg',
+    'assets/images/photo4.jpg',
+  ];
+
   String? _imageUrl;
   bool _isLoading = false;
   String? _errorMessage;
@@ -24,20 +32,15 @@ class _PhotoPageState extends State<PhotoPage> {
       _imageUrl = null;
     });
     try {
-      String url;
-      http.Response response;
-
-      if (_animalType == PhotoType.dog) {
-        url = 'https://dog.ceo/api/breeds/image/random';
-        response = await http.get(Uri.parse(url));
-        Map<String, dynamic> data = jsonDecode(response.body);
-        _imageUrl = data['message'];
-      } else {
-        final random = DateTime.now().millisecondsSinceEpoch;
-        _imageUrl = 'https://picsum.photos/seed/$random/800/800';
-      }
+      await Future.delayed(
+        const Duration(seconds: 2),
+      );
+      final randomIndex =
+          DateTime.now().microsecondsSinceEpoch %
+          _localPhotos.length;
+      _imageUrl = _localPhotos[randomIndex];
     } catch (e) {
-      _errorMessage = 'Не удалось загрузить фото. \nПроверьте подключение к интернету.';
+      _errorMessage = 'Ошибка загрузки фото';
     }
     setState(() {
       _isLoading = false;
@@ -85,11 +88,13 @@ class _PhotoPageState extends State<PhotoPage> {
         const SizedBox(width: 12),
         ChoiceChip(
           label: const Text('� Пейзаж'),
-          selected: _animalType == PhotoType.landscapes,
+          selected:
+              _animalType == PhotoType.landscapes,
           onSelected: (selected) {
             if (selected) {
               setState(() {
-                _animalType = PhotoType.landscapes;
+                _animalType =
+                    PhotoType.landscapes;
                 _imageUrl = null;
                 _errorMessage = null;
               });
@@ -103,7 +108,9 @@ class _PhotoPageState extends State<PhotoPage> {
   Widget _buildContent() {
     if (_isLoading) {
       return const Expanded(
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
       );
     }
 
@@ -132,8 +139,10 @@ class _PhotoPageState extends State<PhotoPage> {
             horizontal: 16,
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Image.network(
+            borderRadius: BorderRadius.circular(
+              16,
+            ),
+            child: Image.asset(
               _imageUrl!,
               fit: BoxFit.cover,
               width: double.infinity,
